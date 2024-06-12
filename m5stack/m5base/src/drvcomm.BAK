@@ -1,0 +1,12 @@
+/*
+  Motor Driver Serial Communication
+
+  Copyright (C) 2024
+*/
+
+#include <stdint.h>
+#include "drvcomm.hpp"
+
+
+DrvComm::DrvComm() {
+}
