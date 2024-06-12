@@ -13,6 +13,10 @@ m5mover/joyctlはROS2のjoy_nodeを使用しています。
 m5mover/m5moverはjoyctlからデータを受けてM5StackとTCP/IPで通信します
 m5mover_msg pkg(C/C++)は専用のカスタムメッセージ用です。
 
+m5moverのパッケージ環境が完成したらビルドして実行できるようにします。
+cd ~ワークスペース
+colcon build
+
 M5StackはEsptochアプリ（スマートフォン専用）の2.4GHz通信を使用してAPのSSIDやキーを設定して使用します。
 M5Stackが正常にAPと通信できると液晶にM5StackのIPアドレスが表示されます。
 m5mover/m5moverには制御するM5StackのIPを設定する必要があります。
