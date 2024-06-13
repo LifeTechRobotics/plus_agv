@@ -49,3 +49,5 @@ source install/setup.bash
 ros2 run m5mover m5mover
 
 AGVを起動します。
+AGVがros2と通信できない場合はm5moverノードを再起動してください。
+（ubuntuでM5Stackとの通信切断がタイムアウトでしか認識できない場合）
