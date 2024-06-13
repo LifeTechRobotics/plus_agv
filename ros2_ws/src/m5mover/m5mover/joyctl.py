@@ -1,3 +1,9 @@
+# coding:utf-8
+# Joystick controller
+#
+# Copyright (C) 2024, 
+#
+
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -6,12 +12,17 @@ from sensor_msgs.msg import Joy
 from m5mover_msg.msg import MoverCommand
 from m5mover_msg.msg import MoverInfo
 
+
+#
+# Joystick Translater
+#
 class JoyTranslate(Node): 
     spdr = 0
     spdl = 0
     led = 0
     lift = 0
 
+    # Initialize
     def __init__(self):
         super().__init__('joyctl') 
         self.publisher = self.create_publisher(MoverCommand, '/cmd_msg', 10)
@@ -19,6 +30,8 @@ class JoyTranslate(Node):
         self.subscription_joy = self.create_subscription(Joy, 'joy', self.joy_callback, 10)
         self.cmd = MoverCommand()
 
+    #
+    # Joystick callback
     def joy_callback(self, Joy):
         self.spdr = int(Joy.axes[2] * 100);
         self.spdl = int(Joy.axes[1] * 100);
@@ -40,17 +53,21 @@ class JoyTranslate(Node):
         else:
             self.lift = 0
 
+        # set command message
         self.cmd.spdr = self.spdr        
         self.cmd.spdl = self.spdl        
         self.cmd.led = self.led        
         self.cmd.lift = self.lift        
 #        print(self.cmd)
-
         self.publisher.publish(self.cmd)
 
+    #
+    # get Message
     def info_callback(self, msg):
         print(msg)
 
+#
+# main
 def main(args=None):
     rclpy.init(args=args)
     joy_translate = JoyTranslate()

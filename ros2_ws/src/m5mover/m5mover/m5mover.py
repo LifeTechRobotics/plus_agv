@@ -1,3 +1,9 @@
+# coding:utf-8
+# M5Static controller
+#
+# Copyright (C) 2024, 
+#
+
 import rclpy
 from rclpy.node import Node
 from m5mover_msg.msg import MoverCommand
@@ -5,15 +11,22 @@ from m5mover_msg.msg import MoverInfo
 import socket
 import re
 
-target_ip = "192.168.0.246"
-target_port = 10200
-buffer_size = 4096
+#  M5Stack TCP/IP Configuration
+target_ip = "192.168.0.246"                       # M5 Stack IP Address
+target_port = 10200                               # port
 
 
+buffer_size = 4096                                # Buffer Size
+
+
+#
+# Responder Class
+#
 class Responder(Node):
     socket_flag = False
     connect_flag = False
 
+    # Initialize
     def __init__(self):
         super().__init__('m5mover')
         self.sub = self.create_subscription(MoverCommand, '/cmd_msg', self.msg_callback, 10)
@@ -21,7 +34,9 @@ class Responder(Node):
         self.cmd = MoverCommand()
         self.info = MoverInfo()
         self.timer = self.create_timer(0.1, self.timer_callback)
-       
+
+    # Timer Callback
+    # Communication with M5Stack
     def timer_callback(self):
         print(self.cmd)
         # socket
@@ -39,9 +54,12 @@ class Responder(Node):
 #        print(self.info)
         self.pub.publish(self.info)
 
+    #
+    # Command Message
     def msg_callback(self, msg):
         self.cmd = msg
 
+    #
     # create socket
     def create_socket(self):
         # TCP Create Socket
@@ -53,6 +71,7 @@ class Responder(Node):
         except:
             self.socket_flag = False
 
+    #
     # connect_server
     def connect_server(self):
         # TCP connect server
@@ -65,10 +84,11 @@ class Responder(Node):
 #                print("connect");
                 self.connect_flag = True
         except:
-            self.socket.close()
+            self.tcp_client.close()
             self.socket_flag = False
             self.connect_flag = False
 
+    #
     # send data
     def send_data(self, cmd):
         # LED R
@@ -90,21 +110,29 @@ class Responder(Node):
         # Brightness
         led = led + "10"
 
+        # to M5Stack Data Packet
+        # ###,Right Motor Speed(rps),Left Motor Speed(rps),LED R(0-255),LED G(0-255),LED B(0-255),,LED Brightness(0-255),Lift\r
+        # ### = HEADER
+        #  :
+        # data
+        #  :
+        # \r = Terminater
         data = "###," + str(cmd.spdr) + ","  + str(cmd.spdl) + ","  + led + "," + str(cmd.lift) + '\r'
 #        print(data)
-        
+
         if self.connect_flag == False:
             return
 
         try:
             self.tcp_client.send(data.encode("ascii"))
 #            print("send:", data)
-            
+
         except:
             self.tcp_client.close()
             self.socket_flag = False
             self.connect_flag = False
 
+    #
     # data recive
     def reciv_data(self):
         try:
@@ -112,6 +140,13 @@ class Responder(Node):
             stg = data.decode()
 #            print(stg)
             param = re.split(',', stg)
+            # from M5Stack Data Paclet
+            # $$$,battery(voltage),current Right Motor speed(rps),current Left Motor speed(rps),Right Encorder,Left Encorder,Motor Driver Status,Weight,Lift\r
+            # $$$ = HEADER
+            #  :
+            # data
+            #  :
+            # \r = Terminater
             self.info.battery = int(param[1])
             self.info.spdr = int(param[2])
             self.info.spdl = int(param[3])
@@ -121,7 +156,7 @@ class Responder(Node):
             self.info.weight = int(param[7])
             self.info.lift = int(param[8])
             print(param)
-            
+
         except:
             self.tcp_client.close()
             self.socket_flag = False
@@ -129,6 +164,8 @@ class Responder(Node):
 
         return self.info
 
+#
+# main
 def main():
     rclpy.init()
     node = Responder()
