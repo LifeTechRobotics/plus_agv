@@ -136,7 +136,7 @@ class Responder(Node):
     # data recive
     def reciv_data(self):
         try:
-            data = self.tcp_client.recv(65)
+            data = self.tcp_client.recv(66)
             stg = data.decode()
 #            print(stg)
             param = re.split(',', stg)
