@@ -580,9 +580,9 @@ void loop() {
               double dv = (double)analogReadMilliVolts(PIN_VOLTAGE);
               Serial.println(dv);
               dv = dv / 10.0;
-              dv = dv / 29 * 150;
+              dv = dv / 27 * 150;
               battery = (int)dv;
-              sprintf(buf, "$$$,%03d,%05d,%05d,%0+12d,%+012d,%03d,%08d,%05d\r", battery, cspdr, cspdl, encr, encl, status, weight, lift);
+              sprintf(buf, "$$$,%04d,%05d,%05d,%0+12d,%+012d,%03d,%08d,%05d\r", battery, cspdr, cspdl, encr, encl, status, weight, lift);
               gClient.write(buf);
               gClient.flush();
               Serial.println(buf);
